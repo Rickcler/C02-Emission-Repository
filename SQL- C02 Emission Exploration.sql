@@ -1,4 +1,4 @@
-/** Somehow SQL didn't read aknowledge the decimal points in the float variables**/
+/** Somehow SQL didn't read the decimal points in the float variables correctly**/
 --Update C02EmissionData
 --SET Per_Capita = Per_Capita / 1000000,  Total = Total/ 1000000, Coal = Coal / 1000000, Oil = Oil/ 1000000,
 --	Gas = Gas / 1000000, Cement = Cement / 1000000, Flaring = Flaring /1000000, Other = Other /1000000,
