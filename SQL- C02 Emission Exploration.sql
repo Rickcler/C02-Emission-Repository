@@ -98,65 +98,67 @@
 --WHERE Total <> 0 AND Total IS NOT NULL AND Coal/Total > 0.5
 --ORDER BY NumberofYears DESC
 
+
+/*_______________________________________________________________________________________*/
 /*** Analyzing the different Organizations (OECD, OPEC, G7) ***/
+/** Creating Stored-Procedures for Per Capita of the different Organizations since 200
+	and Share of the different Organizations on total Emissions **/
 
-/** PerCapita of OECD Countries since 2000 */
---SELECT OECD, AVG(Per_Capita) AS AvgPerCapita, Year
+/**Stored Procedure for Per_Capita: **/
+--CREATE PROCEDURE Per_Capita_Orga (@Organization AS Nvarchar(50))
+--AS
+--DECLARE @DynVar1 AS NVARCHAR(MAX)
+--SET @DynVar1 = 'SELECT ' + @Organization + ', AVG(Per_Capita) AS AvgPerCapita, Year
 --FROM C02EmissionData
---WHERE Year >= 2000 AND Country <> 'Global' AND OECD IS NOT NULL 
---GROUP BY OECD, Year
---ORDER BY Year, OECD
-/* While OECD Countries seem to have a higher PerCapita C02Emission rate, this trend seems to become smaller */
+--WHERE Year >= 2000 AND Country <> ''Global'' AND ' + @Organization + ' IS NOT NULL 
+--GROUP BY ' + @Organization + ', Year
+--ORDER BY Year, ' + @Organization
 
-/**Share of OECD Countries on Total Emissions**/
--- WITH YearlyEmissions AS
+--EXEC (@DynVar1)
+
+/**Stored Procedure for Share of Total**/
+--CREATE PROCEDURE Orga_of_Total (@Organization as Nvarchar(50))
+--AS
+--DECLARE @DynVar2 AS NVARCHAR(MAX)
+--SET @DynVar2 =
+--'WITH YearlyEmissions AS
 --	(SELECT Year, Total AS Globale
 --	 FROM C02EmissionData
---	 WHERE Country = 'Global')
+--	 WHERE Country = ''Global'')
 --SELECT C02EmissionData.Year, SUM(Total) / AVG(Globale) AS ShareOfOECD
 --FROM C02EmissionData 
 --	 JOIN YearlyEmissions ON C02EmissionData.Year = YearlyEmissions.Year
---WHERE C02EmissionData.Year > 2000 AND OECD = 1
---GROUP BY C02EmissionData.Year
+--WHERE C02EmissionData.Year > 2000 AND ' + @Organization +  ' = 1
+--GROUP BY C02EmissionData.Year'
+
+--EXEC (@DynVar2)
+
+
+--EXEC Per_Capita_Orga @Organization = OECD
+--EXEC Orga_of_Total @Organization = OECD
+
+/** PerCapita of OECD Countries since 2000 */
+--EXEC Per_Capita_Orga @Organization = OECD
+/* While OECD Countries seem to have a higher PerCapita C02Emission rate, this trend seems to become smaller */
+
+
+/**Share of OECD Countries on Total Emissions**/
+--EXEC Orga_of_Total @Organization = OECD
 /* In the early 2000s it was more then 50% of Total Emissions, by now it's only a bit more then 30% */
 
 /** PerCapita of OPEC Countries since 2000 */
---SELECT OPEC, AVG(Per_Capita) AS AvgPerCapita, Year
---FROM C02EmissionData
---WHERE Year >= 2000 AND OPEC IS NOT NULL 
---GROUP BY OPEC, Year
---ORDER BY Year, OPEC
+--EXEC Per_Capita_Orga @Organization = OPEC
 /* Also way higher then the world average With a smaller trend to reduction */
 
 /**Share of OPEC Countries on Total Emissions**/
--- WITH YearlyEmissions AS
---	(SELECT Year, Total AS Globale
---	 FROM C02EmissionData
---	 WHERE Country = 'Global')
---SELECT C02EmissionData.Year, SUM(Total) / AVG(Globale) AS ShareOfOPEC
---FROM C02EmissionData 
---	 JOIN YearlyEmissions ON C02EmissionData.Year = YearlyEmissions.Year
---WHERE C02EmissionData.Year > 2000 AND OPEC = 1
---GROUP BY C02EmissionData.Year
+--EXEC Orga_of_Total @Organization = OPEC
 /*Only about 5-7% of Total, which makes sense regarding the fact that the countries dont make up a substantial part of the world population */
 
 /** PerCapita of G7 Countries since 2000 */
---SELECT G7, AVG(Per_Capita) AS AvgPerCapita, Year
---FROM C02EmissionData
---WHERE Year >= 2000 AND G7 IS NOT NULL 
---GROUP BY G7, Year
---ORDER BY Year, G7
+--EXEC Per_Capita_Orga @Organization = G7
 /* Pretty similiar to OPEC however stronger tendency of approximation*/ 
 
 /**Share of G7 Countries on Total Emissions**/
---WITH YearlyEmissions AS
---	(SELECT Year, Total AS Globale
---	 FROM C02EmissionData
---	 WHERE Country = 'Global')
---SELECT C02EmissionData.Year, SUM(Total) / AVG(Globale) AS ShareOfG7
---FROM C02EmissionData 
---	 JOIN YearlyEmissions ON C02EmissionData.Year = YearlyEmissions.Year
---WHERE C02EmissionData.Year > 2000 AND G7 = 1
---GROUP BY C02EmissionData.Year
+--EXEC Orga_of_Total @Organization = G7
 /*Indeed a very high share of the Global C02 Emissions regarding the fact that the only make up about 10% of the population
   However, the share the Global Emissions has almost decreased by 50% (40 % in 2000 and 22% in 2021)*/
